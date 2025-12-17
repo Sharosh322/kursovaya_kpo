@@ -1,8 +1,6 @@
 package com.example.backend.security;
 
-import com.example.backend.entity.AppUser;
 import com.example.backend.repository.AppUserRepository;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -11,21 +9,15 @@ import org.springframework.stereotype.Service;
 @Service
 public class AppUserDetailsService implements UserDetailsService {
 
-    private final AppUserRepository userRepository;
+    private final AppUserRepository repo;
 
-    public AppUserDetailsService(AppUserRepository userRepository) {
-        this.userRepository = userRepository;
+    public AppUserDetailsService(AppUserRepository repo) {
+        this.repo = repo;
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username)
-            throws UsernameNotFoundException {
-        AppUser user = userRepository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-
-        return User.withUsername(user.getEmail())
-                .password(user.getPassword())
-                .roles("USER")
-                .build();
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        return repo.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
     }
 }

@@ -11,8 +11,11 @@ public class CandidateDetailsDto {
     private String notes;
     private List<ReviewDto> reviews;
 
-    public CandidateDetailsDto() {
-    }
+    private Long assignedInterviewerId;
+    private String assignedInterviewerEmail;
+    private String assignedInterviewerFullName;
+
+    public CandidateDetailsDto() {}
 
     public CandidateDetailsDto(
             Long id,
@@ -21,7 +24,10 @@ public class CandidateDetailsDto {
             String email,
             String phone,
             String notes,
-            List<ReviewDto> reviews
+            List<ReviewDto> reviews,
+            Long assignedInterviewerId,
+            String assignedInterviewerEmail,
+            String assignedInterviewerFullName
     ) {
         this.id = id;
         this.name = name;
@@ -30,61 +36,32 @@ public class CandidateDetailsDto {
         this.phone = phone;
         this.notes = notes;
         this.reviews = reviews;
+        this.assignedInterviewerId = assignedInterviewerId;
+        this.assignedInterviewerEmail = assignedInterviewerEmail;
+        this.assignedInterviewerFullName = assignedInterviewerFullName;
     }
 
-    public Long getId() {
-        return id;
-    }
+    public Long getId() { return id; }
+    public String getName() { return name; }
+    public String getStatus() { return status; }
+    public String getEmail() { return email; }
+    public String getPhone() { return phone; }
+    public String getNotes() { return notes; }
+    public List<ReviewDto> getReviews() { return reviews; }
 
-    public String getName() {
-        return name;
-    }
+    public Long getAssignedInterviewerId() { return assignedInterviewerId; }
+    public String getAssignedInterviewerEmail() { return assignedInterviewerEmail; }
+    public String getAssignedInterviewerFullName() { return assignedInterviewerFullName; }
 
-    public String getStatus() {
-        return status;
-    }
+    public void setId(Long id) { this.id = id; }
+    public void setName(String name) { this.name = name; }
+    public void setStatus(String status) { this.status = status; }
+    public void setEmail(String email) { this.email = email; }
+    public void setPhone(String phone) { this.phone = phone; }
+    public void setNotes(String notes) { this.notes = notes; }
+    public void setReviews(List<ReviewDto> reviews) { this.reviews = reviews; }
 
-    public String getEmail() {
-        return email;
-    }
-
-    public String getPhone() {
-        return phone;
-    }
-
-    public String getNotes() {
-        return notes;
-    }
-
-    public List<ReviewDto> getReviews() {
-        return reviews;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
-
-    public void setNotes(String notes) {
-        this.notes = notes;
-    }
-
-    public void setReviews(List<ReviewDto> reviews) {
-        this.reviews = reviews;
-    }
+    public void setAssignedInterviewerId(Long assignedInterviewerId) { this.assignedInterviewerId = assignedInterviewerId; }
+    public void setAssignedInterviewerEmail(String assignedInterviewerEmail) { this.assignedInterviewerEmail = assignedInterviewerEmail; }
+    public void setAssignedInterviewerFullName(String assignedInterviewerFullName) { this.assignedInterviewerFullName = assignedInterviewerFullName; }
 }

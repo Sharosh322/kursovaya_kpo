@@ -9,12 +9,13 @@ import org.springframework.stereotype.Service;
 
 import java.security.Key;
 import java.util.Date;
+import java.util.Map;
 import java.util.function.Function;
 
 @Service
 public class JwtService {
 
-    // Секретный ключ (для курсовой можно так, но обычно кладут в конфиг)
+    // ✅ длина ок для HS256
     private static final String SECRET_KEY =
             "my-super-secret-key-for-jwt-my-super-secret-key-for-jwt";
 
@@ -22,17 +23,31 @@ public class JwtService {
         return extractClaim(token, Claims::getSubject);
     }
 
+    public String extractRole(String token) {
+        return extractClaim(token, claims -> claims.get("role", String.class));
+    }
+
+    public String extractFullName(String token) {
+        return extractClaim(token, claims -> claims.get("fullName", String.class));
+    }
+
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
-        final Claims claims = extractAllClaims(token);
+        Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
     }
 
-    public String generateToken(String username) {
+    public String generateToken(String email, String role, String fullName) {
         long now = System.currentTimeMillis();
-        long expirationMs = 1000 * 60 * 60; // 1 час
+        long expirationMs = 1000L * 60 * 60; // 1 час
+
+        Map<String, Object> extraClaims = Map.of(
+                "role", role,
+                "fullName", fullName
+        );
 
         return Jwts.builder()
-                .setSubject(username)
+                .setClaims(extraClaims)
+                .setSubject(email)
                 .setIssuedAt(new Date(now))
                 .setExpiration(new Date(now + expirationMs))
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
@@ -40,8 +55,10 @@ public class JwtService {
     }
 
     public boolean isTokenValid(String token, String username) {
-        final String extractedUsername = extractUsername(token);
-        return extractedUsername.equals(username) && !isTokenExpired(token);
+        String extractedUsername = extractUsername(token);
+        return extractedUsername != null
+                && extractedUsername.equals(username)
+                && !isTokenExpired(token);
     }
 
     private boolean isTokenExpired(String token) {
@@ -61,6 +78,7 @@ public class JwtService {
     }
 
     private Key getSignInKey() {
+        // ✅ делаем base64 из bytes и обратно (как у тебя)
         byte[] keyBytes = Decoders.BASE64.decode(
                 java.util.Base64.getEncoder().encodeToString(SECRET_KEY.getBytes())
         );

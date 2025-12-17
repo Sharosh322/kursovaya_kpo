@@ -1,5 +1,6 @@
 package com.example.backend.dto;
 
+
 public class VacancyDto {
     private Long id;
     private String title;
