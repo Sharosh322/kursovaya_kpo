@@ -26,7 +26,10 @@ export default function Layout() {
             <div className="sbBrand">HR Review</div>
 
             {isAuthed && (
-              <Badge kind={isAdmin ? "admin" : "user"}>
+              <Badge
+                testId="role-badge"
+                kind={isAdmin ? "admin" : "user"}
+              >
                 {isAdmin ? "ADMIN" : "USER"}
               </Badge>
             )}
@@ -85,7 +88,8 @@ export default function Layout() {
               {isAdmin ? <N to="/assign">Назначения</N> : null}
 
               <div className="spacer12" />
-              <Button variant="danger" onClick={logout}>
+
+              <Button testId="logout-btn" variant="danger" onClick={logout}>
                 Выйти
               </Button>
             </>

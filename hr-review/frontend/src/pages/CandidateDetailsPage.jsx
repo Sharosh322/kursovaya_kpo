@@ -99,10 +99,24 @@ export default function CandidateDetailsPage() {
 
       <Card title="Данные кандидата" sub="Основная информация">
         <div className="grid2">
-          <div><div className="muted">Имя</div><div style={{ fontWeight: 800 }}>{data.name}</div></div>
-          <div><div className="muted">Статус</div><div><Badge kind="user">{data.status}</Badge></div></div>
-          <div><div className="muted">Email</div><div>{data.email || "—"}</div></div>
-          <div><div className="muted">Телефон</div><div>{data.phone || "—"}</div></div>
+          <div>
+            <div className="muted">Имя</div>
+            <div style={{ fontWeight: 800 }}>{data.name}</div>
+          </div>
+          <div>
+            <div className="muted">Статус</div>
+            <div>
+              <Badge kind="user">{data.status}</Badge>
+            </div>
+          </div>
+          <div>
+            <div className="muted">Email</div>
+            <div>{data.email || "—"}</div>
+          </div>
+          <div>
+            <div className="muted">Телефон</div>
+            <div>{data.phone || "—"}</div>
+          </div>
           <div style={{ gridColumn: "1 / -1" }}>
             <div className="muted">Заметки</div>
             <div>{data.notes || "—"}</div>
@@ -114,16 +128,26 @@ export default function CandidateDetailsPage() {
         {isAdmin ? (
           <div className="row">
             <div style={{ flex: 1, minWidth: 260 }}>
-              <Select value={newStatus} onChange={(e) => setNewStatus(e.target.value)}>
+              <Select
+                testId="cand-status-select"
+                value={newStatus}
+                onChange={(e) => setNewStatus(e.target.value)}
+              >
                 {STATUSES.map((s) => (
-                  <option key={s} value={s}>{s}</option>
+                  <option key={s} value={s}>
+                    {s}
+                  </option>
                 ))}
               </Select>
             </div>
-            <Button variant="primary" onClick={updateStatus}>Сохранить</Button>
+            <Button testId="cand-status-save" variant="primary" onClick={updateStatus}>
+              Сохранить
+            </Button>
           </div>
         ) : (
-          <Alert type="info">Менять статус может только <b>ADMIN</b>.</Alert>
+          <Alert type="info">
+            Менять статус может только <b>ADMIN</b>.
+          </Alert>
         )}
       </Card>
 
@@ -132,6 +156,7 @@ export default function CandidateDetailsPage() {
           <label>
             Автор (необязательно)
             <Input
+              testId="review-author"
               placeholder="author@mail.ru"
               value={author}
               onChange={(e) => setAuthor(e.target.value)}
@@ -141,6 +166,7 @@ export default function CandidateDetailsPage() {
           <label>
             Текст отзыва
             <Textarea
+              testId="review-text"
               placeholder="Напиши отзыв…"
               value={reviewText}
               onChange={(e) => setReviewText(e.target.value)}
@@ -149,7 +175,7 @@ export default function CandidateDetailsPage() {
           </label>
 
           <div className="rowRight">
-            <Button variant="primary" type="submit" disabled={!reviewText.trim()}>
+            <Button testId="review-submit" variant="primary" type="submit" disabled={!reviewText.trim()}>
               Добавить отзыв
             </Button>
           </div>
@@ -157,7 +183,7 @@ export default function CandidateDetailsPage() {
 
         <div className="spacer" />
 
-        {(!data.reviews || data.reviews.length === 0) ? (
+        {!data.reviews || data.reviews.length === 0 ? (
           <div className="muted">Отзывов пока нет.</div>
         ) : (
           <table className="table">

@@ -1,7 +1,7 @@
 plugins {
-	id 'java'
-	id 'org.springframework.boot' version '4.0.0'
-	id 'io.spring.dependency-management' version '1.1.7'
+    id 'java'
+    id 'org.springframework.boot' version '4.0.0'
+    id 'io.spring.dependency-management' version '1.1.7'
 }
 
 group = 'com.example'
@@ -9,30 +9,49 @@ version = '0.0.1-SNAPSHOT'
 description = 'Demo project for Spring Boot'
 
 java {
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(17)
-	}
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
 }
 
 repositories {
-	mavenCentral()
+    mavenCentral()
+    // Добавляем Spring Milestone репозиторий для Spring Boot 4.0.0 (если он существует)
+    maven { url 'https://repo.spring.io/milestone' }
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-h2console'
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'org.springframework.boot:spring-boot-starter-webmvc'
-	implementation 'org.springframework.boot:spring-boot-starter-security'
-	runtimeOnly 'org.postgresql:postgresql'
-	// JWT
+    // Основные зависимости
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    
+    runtimeOnly 'org.postgresql:postgresql'
+    
+	testImplementation 'org.testcontainers:testcontainers:1.19.7'
+    testImplementation 'org.testcontainers:junit-jupiter:1.19.7'
+    testImplementation 'org.testcontainers:postgresql:1.19.7'
+    // JWT
     implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
-	testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa-test'
-	testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
-	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    
+    // Тестирование - ОБНОВЛЕНО для Spring Boot 4.0.0
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
+    testImplementation 'com.h2database:h2'
+
+	testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
+  	testImplementation 'org.seleniumhq.selenium:selenium-java:4.23.1'
+  	testImplementation 'io.github.bonigarcia:webdrivermanager:5.9.2'
+    
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
-tasks.named('test') {
-	useJUnitPlatform()
+// Конфигурация тестов
+test {
+    useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
 }
