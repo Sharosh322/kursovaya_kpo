@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { api } from "../api/api";
-import { Card, Input, Select, Button, Alert } from "../ui/but";
 import { Link } from "react-router-dom";
+import { Card, Input, Select, Button, Alert } from "../ui/but";
 
 export default function AssignInterviewerPage() {
   const [candidateId, setCandidateId] = useState("");
@@ -46,7 +46,6 @@ export default function AssignInterviewerPage() {
       const res = await api.get(`/api/candidates/${parsedId}`);
       setCandidate(res.data);
 
-      // если уже назначен — поставим в select
       const assignedEmail = res.data?.assignedInterviewerEmail;
       if (assignedEmail) setChosenEmail(assignedEmail);
     } catch (e) {
@@ -100,13 +99,19 @@ export default function AssignInterviewerPage() {
           <div className="field" style={{ width: 260 }}>
             <div className="label">ID кандидата</div>
             <Input
+              testId="assign-candidate-id"
               value={candidateId}
               onChange={(e) => setCandidateId(e.target.value)}
               placeholder="например: 1"
             />
           </div>
 
-          <Button variant="primary" onClick={loadCandidate} disabled={loading}>
+          <Button
+            testId="assign-load-candidate"
+            variant="primary"
+            onClick={loadCandidate}
+            disabled={loading}
+          >
             Загрузить
           </Button>
 
@@ -122,7 +127,11 @@ export default function AssignInterviewerPage() {
         <div className="row">
           <div className="field" style={{ minWidth: 320, flex: 1 }}>
             <div className="label">Интервьюер (USER)</div>
-            <Select value={chosenEmail} onChange={(e) => setChosenEmail(e.target.value)}>
+            <Select
+              testId="assign-interviewer-select"
+              value={chosenEmail}
+              onChange={(e) => setChosenEmail(e.target.value)}
+            >
               {interviewers.map((u) => (
                 <option key={u.id} value={u.email}>
                   {u.fullName ? `${u.fullName} — ` : ""}{u.email}
@@ -131,7 +140,12 @@ export default function AssignInterviewerPage() {
             </Select>
           </div>
 
-          <Button variant="primary" onClick={assign} disabled={loading || !candidate}>
+          <Button
+            testId="assign-submit"
+            variant="primary"
+            onClick={assign}
+            disabled={loading || !candidate}
+          >
             Назначить
           </Button>
         </div>

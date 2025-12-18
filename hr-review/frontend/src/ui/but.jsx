@@ -1,8 +1,8 @@
 import React from "react";
 
-export function Card({ title, sub, right, children, className = "" }) {
+export function Card({ title, sub, right, children, className = "", ...props }) {
   return (
-    <div className={`card ${className}`}>
+    <div className={`card ${className}`} {...props}>
       <div className="cardInner">
         {(title || right) && (
           <div className="cardHeaderRow">
@@ -19,7 +19,7 @@ export function Card({ title, sub, right, children, className = "" }) {
   );
 }
 
-export function Button({ variant = "default", className = "", ...props }) {
+export function Button({ variant = "default", className = "", testId, ...props }) {
   const cls =
     variant === "primary"
       ? "btn btnPrimary"
@@ -28,28 +28,28 @@ export function Button({ variant = "default", className = "", ...props }) {
       : variant === "ghost"
       ? "btn btnGhost"
       : "btn";
-  return <button className={`${cls} ${className}`} {...props} />;
+  return <button data-testid={testId} className={`${cls} ${className}`} {...props} />;
 }
 
-export function Input({ className = "", ...props }) {
-  return <input className={`input ${className}`} {...props} />;
+export function Input({ className = "", testId, ...props }) {
+  return <input data-testid={testId} className={`input ${className}`} {...props} />;
 }
 
-export function Select({ className = "", ...props }) {
-  return <select className={`select ${className}`} {...props} />;
+export function Select({ className = "", testId, ...props }) {
+  return <select data-testid={testId} className={`select ${className}`} {...props} />;
 }
 
-export function Textarea({ className = "", ...props }) {
-  return <textarea className={`textarea ${className}`} {...props} />;
+export function Textarea({ className = "", testId, ...props }) {
+  return <textarea data-testid={testId} className={`textarea ${className}`} {...props} />;
 }
 
-export function Badge({ kind = "user", children }) {
+export function Badge({ kind = "user", children, testId }) {
   const cls = kind === "admin" ? "badge badgeAdmin" : "badge badgeUser";
-  return <span className={cls}>{children}</span>;
+  return <span data-testid={testId} className={cls}>{children}</span>;
 }
 
-export function Alert({ type = "info", children }) {
+export function Alert({ type = "info", children, testId }) {
   const cls =
     type === "error" ? "alert alertErr" : type === "ok" ? "alert alertOk" : "alert";
-  return <div className={cls}>{children}</div>;
+  return <div data-testid={testId} className={cls}>{children}</div>;
 }

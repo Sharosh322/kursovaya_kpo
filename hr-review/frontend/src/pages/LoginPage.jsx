@@ -50,6 +50,7 @@ export default function LoginPage() {
           <label>
             Email
             <Input
+              testId="login-email"
               placeholder="user@mail.ru"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -60,6 +61,7 @@ export default function LoginPage() {
           <label>
             Пароль
             <Input
+              testId="login-password"
               placeholder="••••••••"
               type="password"
               value={password}
@@ -69,9 +71,10 @@ export default function LoginPage() {
           </label>
 
           <div className="row">
-            <Button variant="primary" type="submit" disabled={loading}>
+            <Button testId="login-submit" variant="primary" type="submit" disabled={loading}>
               {loading ? "Входим..." : "Войти"}
             </Button>
+
             <Link className="muted" to="/register">
               Регистрация →
             </Link>

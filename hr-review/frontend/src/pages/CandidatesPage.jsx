@@ -104,31 +104,33 @@ export default function CandidatesPage() {
         </div>
       </div>
 
-      <Card
-        title="Добавить кандидата"
-        sub={isAdmin ? "Доступно администратору" : "Только ADMIN может добавлять кандидатов"}
-      >
-        {!isAdmin ? (
-          <Alert type="info">В этом режиме можно только просматривать список.</Alert>
-        ) : null}
+      <Card title="Добавить кандидата" sub={isAdmin ? "Доступно администратору" : "Только ADMIN может добавлять кандидатов"}>
+        {!isAdmin ? <Alert type="info">В этом режиме можно только просматривать список.</Alert> : null}
 
         <form onSubmit={create} className="formRow">
           <label>
             Имя
-            <Input placeholder="Например: Иванов Иван" value={name} onChange={(e) => setName(e.target.value)} />
+            <Input
+              testId="cand-create-name"
+              placeholder="Например: Иванов Иван"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
           </label>
 
           <label>
             Статус
-            <Select value={status} onChange={(e) => setStatus(e.target.value)}>
+            <Select testId="cand-create-status" value={status} onChange={(e) => setStatus(e.target.value)}>
               {STATUSES.map((s) => (
-                <option key={s} value={s}>{s}</option>
+                <option key={s} value={s}>
+                  {s}
+                </option>
               ))}
             </Select>
           </label>
 
           <div className="inlineRow" style={{ justifyContent: "flex-end" }}>
-            <Button variant="primary" type="submit" disabled={!isAdmin}>
+            <Button testId="cand-create-submit" variant="primary" type="submit" disabled={!isAdmin}>
               Добавить
             </Button>
           </div>
@@ -169,7 +171,9 @@ export default function CandidatesPage() {
                 <tr key={c.id}>
                   <td>{c.id}</td>
                   <td style={{ fontWeight: 800 }}>{c.name}</td>
-                  <td><span className="pill">{c.status}</span></td>
+                  <td>
+                    <span className="pill">{c.status}</span>
+                  </td>
                   <td style={{ textAlign: "right" }}>
                     <Link to={`/candidates/${c.id}`}>Открыть</Link>
                   </td>
