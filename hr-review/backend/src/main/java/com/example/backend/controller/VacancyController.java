@@ -4,6 +4,7 @@ import com.example.backend.dto.VacancyCreateRequest;
 import com.example.backend.dto.VacancyDto;
 import com.example.backend.service.HrService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,6 +25,7 @@ public class VacancyController {
         return hrService.getAllVacancies();
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<VacancyDto> create(@RequestBody VacancyCreateRequest request) {
         VacancyDto created = hrService.createVacancy(request);

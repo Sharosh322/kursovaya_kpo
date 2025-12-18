@@ -1,115 +1,211 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { api } from "../api/apiClient";
+import { api } from "../api/api";
+import { useAuth } from "../auth/AuthContext";
+import { Card, Button, Input, Select, Textarea, Alert, Badge } from "../ui/but";
 
-export function CandidateDetailsPage() {
+const STATUSES = ["NEW", "INTERVIEW", "OFFER", "REJECTED", "HIRED"];
+
+export default function CandidateDetailsPage() {
   const { candidateId } = useParams();
-  const [candidate, setCandidate] = useState(null);
-  const [status, setStatus] = useState("");
-  const [reviewText, setReviewText] = useState("");
-  const [loading, setLoading] = useState(true);
+  const { isAdmin } = useAuth();
 
-  const loadCandidate = async () => {
-    try {
-      const res = await api.get(`/candidates/${candidateId}`);
-      setCandidate(res.data);
-      setStatus(res.data.status || "");
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoading(false);
-    }
+  const [data, setData] = useState(null);
+  const [err, setErr] = useState("");
+  const [msg, setMsg] = useState("");
+
+  const [newStatus, setNewStatus] = useState("NEW");
+  const [reviewText, setReviewText] = useState("");
+  const [author, setAuthor] = useState("");
+
+  const load = async () => {
+    const res = await api.get(`/api/candidates/${candidateId}`);
+    setData(res.data);
+    setNewStatus(res.data?.status || "NEW");
   };
 
   useEffect(() => {
-    loadCandidate();
+    setErr("");
+    setMsg("");
+    load().catch((e) => {
+      if (e?.response?.status === 403) setErr("Нет доступа к кандидату.");
+      else setErr("Не удалось загрузить кандидата.");
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [candidateId]);
 
-  const handleStatusChange = async (e) => {
-    const newStatus = e.target.value;
-    setStatus(newStatus);
-
-    await api.patch(`/candidates/${candidateId}/status`, {
-      status: newStatus,
-    });
-
-    await loadCandidate();
+  const updateStatus = async () => {
+    setErr("");
+    setMsg("");
+    try {
+      await api.patch(`/api/candidates/${candidateId}/status`, { status: newStatus });
+      setMsg("Статус обновлён ✅");
+      await load();
+    } catch (e) {
+      if (e?.response?.status === 403) setErr("Менять статус может только ADMIN.");
+      else setErr(e?.response?.data?.message || "Не удалось обновить статус");
+    }
   };
 
-  const handleAddReview = async (e) => {
+  const addReview = async (e) => {
     e.preventDefault();
-    if (!reviewText.trim()) return;
+    setErr("");
+    setMsg("");
 
-    await api.post(`/candidates/${candidateId}/reviews`, {
-      text: reviewText.trim(),
-    });
+    if (!reviewText.trim()) {
+      setErr("Текст отзыва не должен быть пустым.");
+      return;
+    }
 
-    setReviewText("");
-    await loadCandidate();
+    try {
+      await api.post(
+        `/api/candidates/${candidateId}/reviews`,
+        { text: reviewText.trim() },
+        author.trim() ? { headers: { "X-Author": author.trim() } } : undefined
+      );
+      setReviewText("");
+      setAuthor("");
+      setMsg("Отзыв добавлен ✅");
+      await load();
+    } catch (e2) {
+      setErr(e2?.response?.data?.message || "Не удалось добавить отзыв");
+    }
   };
 
-  if (loading) return <div style={{ padding: "1.5rem" }}>Загрузка...</div>;
-  if (!candidate) return <div style={{ padding: "1.5rem" }}>Кандидат не найден</div>;
+  if (!data) {
+    return (
+      <div className="page">
+        <Card title="Кандидат" sub="Загрузка данных…">
+          <div className="muted">Подождите…</div>
+        </Card>
+      </div>
+    );
+  }
 
   return (
-    <div style={{ padding: "1.5rem", maxWidth: "800px", margin: "0 auto" }}>
-      <Link to={-1} style={{ display: "inline-block", marginBottom: "1rem" }}>
-        ← Назад
-      </Link>
+    <div className="page">
+      <div className="pageHeader">
+        <div>
+          <div className="pageTitle">Кандидат #{data.id}</div>
+          <div className="pageSub">Данные кандидата, статусы и отзывы.</div>
+        </div>
+        <div className="rowRight">
+          <Link to="/candidates">← Назад</Link>
+        </div>
+      </div>
 
-      <h2>Кандидат #{candidate.id}</h2>
+      {err && <Alert type="error">{err}</Alert>}
+      {msg && <Alert type="ok">{msg}</Alert>}
 
-      <p>
-        <strong>Имя:</strong> {candidate.name}
-      </p>
-      <p>
-        <strong>Email:</strong> {candidate.email || "—"}
-      </p>
-      <p>
-        <strong>Телефон:</strong> {candidate.phone || "—"}
-      </p>
+      <Card title="Данные кандидата" sub="Основная информация">
+        <div className="grid2">
+          <div>
+            <div className="muted">Имя</div>
+            <div style={{ fontWeight: 800 }}>{data.name}</div>
+          </div>
+          <div>
+            <div className="muted">Статус</div>
+            <div>
+              <Badge kind="user">{data.status}</Badge>
+            </div>
+          </div>
+          <div>
+            <div className="muted">Email</div>
+            <div>{data.email || "—"}</div>
+          </div>
+          <div>
+            <div className="muted">Телефон</div>
+            <div>{data.phone || "—"}</div>
+          </div>
+          <div style={{ gridColumn: "1 / -1" }}>
+            <div className="muted">Заметки</div>
+            <div>{data.notes || "—"}</div>
+          </div>
+        </div>
+      </Card>
 
-      <p>
-        <strong>Статус:</strong>{" "}
-        <select value={status} onChange={handleStatusChange}>
-          <option value="Отклик получен">Отклик получен</option>
-          <option value="Интервью назначено">Интервью назначено</option>
-          <option value="На рассмотрении">На рассмотрении</option>
-          <option value="Отказ">Отказ</option>
-          <option value="Оффер сделан">Оффер сделан</option>
-          <option value="Выход на работу">Выход на работу</option>
-        </select>
-      </p>
+      <Card title="Изменить статус" sub={isAdmin ? "Доступно администратору" : "Только ADMIN"}>
+        {isAdmin ? (
+          <div className="row">
+            <div style={{ flex: 1, minWidth: 260 }}>
+              <Select
+                testId="cand-status-select"
+                value={newStatus}
+                onChange={(e) => setNewStatus(e.target.value)}
+              >
+                {STATUSES.map((s) => (
+                  <option key={s} value={s}>
+                    {s}
+                  </option>
+                ))}
+              </Select>
+            </div>
+            <Button testId="cand-status-save" variant="primary" onClick={updateStatus}>
+              Сохранить
+            </Button>
+          </div>
+        ) : (
+          <Alert type="info">
+            Менять статус может только <b>ADMIN</b>.
+          </Alert>
+        )}
+      </Card>
 
-      <h3>Отзывы</h3>
-      {candidate.reviews && candidate.reviews.length > 0 ? (
-        <ul>
-          {candidate.reviews.map((r) => (
-            <li key={r.id} style={{ marginBottom: "0.5rem" }}>
-              <strong>{r.author}:</strong> {r.text}
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <div>Пока нет отзывов.</div>
-      )}
+      <Card title="Отзывы" sub="Добавляй и смотри историю отзывов">
+        <form onSubmit={addReview} className="form">
+          <label>
+            Автор (необязательно)
+            <Input
+              testId="review-author"
+              placeholder="author@mail.ru"
+              value={author}
+              onChange={(e) => setAuthor(e.target.value)}
+            />
+          </label>
 
-      <h4 style={{ marginTop: "1.5rem" }}>Добавить отзыв</h4>
-      <form
-        onSubmit={handleAddReview}
-        style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}
-      >
-        <textarea
-          rows={4}
-          value={reviewText}
-          onChange={(e) => setReviewText(e.target.value)}
-          placeholder="Напишите обратную связь по кандидату..."
-          style={{ padding: "0.5rem", resize: "vertical" }}
-        />
-        <button type="submit" style={{ alignSelf: "flex-start", padding: "0.5rem 1rem" }}>
-          Сохранить отзыв
-        </button>
-      </form>
+          <label>
+            Текст отзыва
+            <Textarea
+              testId="review-text"
+              placeholder="Напиши отзыв…"
+              value={reviewText}
+              onChange={(e) => setReviewText(e.target.value)}
+              rows={4}
+            />
+          </label>
+
+          <div className="rowRight">
+            <Button testId="review-submit" variant="primary" type="submit" disabled={!reviewText.trim()}>
+              Добавить отзыв
+            </Button>
+          </div>
+        </form>
+
+        <div className="spacer" />
+
+        {!data.reviews || data.reviews.length === 0 ? (
+          <div className="muted">Отзывов пока нет.</div>
+        ) : (
+          <table className="table">
+            <thead>
+              <tr>
+                <th style={{ width: 90 }}>ID</th>
+                <th style={{ width: 260 }}>Автор</th>
+                <th>Текст</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.reviews.map((r) => (
+                <tr key={r.id}>
+                  <td>{r.id}</td>
+                  <td style={{ fontWeight: 800 }}>{r.author || "Аноним"}</td>
+                  <td>{r.text}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </Card>
     </div>
   );
 }
